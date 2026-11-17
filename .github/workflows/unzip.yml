@@ -26,6 +26,7 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          rm -f .github/workflows/deploy.yml
           git add -A
           git commit -m "Install Slot Racing V0.4 with camera fix" || echo "Keine Änderungen"
           git push
