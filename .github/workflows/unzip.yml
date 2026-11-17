@@ -1,1 +1,32 @@
 
+name: Unzip Slot Racing
+
+on:
+  workflow_dispatch:
+
+jobs:
+  unzip:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - name: Repository auschecken
+        uses: actions/checkout@v4
+
+      - name: ZIP entpacken
+        run: |
+          mkdir -p extracted
+          unzip -o Slot-Racing-v0.4-Kamera-Fix.zip -d extracted
+          cp -a extracted/slot-racing-pwa-development/. .
+          rm -rf extracted
+          rm -f Slot-Racing-v0.4-Kamera-Fix.zip
+
+      - name: Änderungen speichern
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A
+          git commit -m "Install Slot Racing V0.4 with camera fix" || echo "Keine Änderungen"
+          git push
+
