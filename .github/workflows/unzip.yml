@@ -4,33 +4,42 @@ name: Unzip Slot Racing
 on:
   workflow_dispatch:
 
+permissions:
+  contents: write
+
 jobs:
   unzip:
     runs-on: ubuntu-latest
-    permissions:
-      contents: write
 
     steps:
       - name: Repository auschecken
         uses: actions/checkout@v4
+        with:
+          ref: main
 
       - name: ZIP entpacken
         run: |
-          mkdir -p extracted
-          unzip -o Slot-Racing-v0.4-Kamera-Fix.zip -d extracted
-          cp -a extracted/slot-racing-pwa-development/. .
-          rm -rf extracted
-          rm -f Slot-Racing-v0.4-Kamera-Fix.zip
+          ZIP="Slot-Racing-v0.4-Kamera-Fix.zip"
+          mkdir -p /tmp/slot-racing
+          unzip -oq "$ZIP" -d /tmp/slot-racing
 
-      
+          ROOT="/tmp/slot-racing/slot-racing-pwa-development"
+          test -f "$ROOT/package.json"
+
+          cp -a "$ROOT"/. .
+
+          rm -f .github/workflows/deploy.yml
+          rm -f "$ZIP"
+
       - name: Änderungen speichern
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          rm -f .github/workflows/deploy.yml
+
           git add -A
-          git commit -m "Install Slot Racing V0.4 with camera fix" || echo "Keine Änderungen"
+          if ! git diff --cached --quiet; then
+            git commit -m "Install Slot Racing V0.4 with camera fix"
+          fi
+
           git pull --rebase origin main
-          git push
-
-
+          git push origin HEAD:main
